@@ -1,0 +1,20 @@
+# Deny access to .env file
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Deny access to files with specific extensions
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Extra security: Disable directory listing
+Options -Indexes
+
+# Protect against viewing of .htaccess file itself
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
