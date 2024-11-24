@@ -44,7 +44,7 @@ MERCHANT_CITY="Your city"
 Note: 
 - MERCHANT_NAME is limited to 25 characters
 - MERCHANT_CITY is limited to 15 characters
-- DESCRIPTION is limited to 50 characters
+- DESCRIPTION is limited to 50 characters, avoid special characters
 
 ## Usage
 

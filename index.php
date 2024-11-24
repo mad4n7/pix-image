@@ -13,15 +13,15 @@ function generatePixString($key, $name, $city, $amount, $description = '') {
     $city = substr($city, 0, 15);
     $description = substr($description, 0, 50);
     $amount = number_format($amount, 2, '.', '');
-    
+
     // Build merchant account info
     $gui = "br.gov.bcb.pix";
     $merchantAccount = "00" . sprintf("%02d", strlen($gui)) . $gui;
     $merchantAccount .= "01" . sprintf("%02d", strlen($key)) . $key;
-    
+
     // Build additional data field
     $additionalData = "05" . sprintf("%02d", strlen($description)) . $description;
-    
+
     // Build the payload array
     $payload = [
         "00" => "01",                     // Payload Format Indicator
@@ -34,13 +34,13 @@ function generatePixString($key, $name, $city, $amount, $description = '') {
         "60" => $city,                    // Merchant City
         "62" => $additionalData,          // Additional Data Field
     ];
-    
+
     // Encode payload
     $pixString = "";
     foreach ($payload as $id => $value) {
         $pixString .= $id . sprintf("%02d", strlen($value)) . $value;
     }
-    
+
     // Add CRC16
     $pixString .= "6304";
     $crc = crc16($pixString);
@@ -63,9 +63,23 @@ function crc16($str) {
     return $crc;
 }
 
+function formatCurrencyValue($value) {
+    // Remove 'R$' prefix and trim whitespace
+    $value = trim(str_replace('R$', '', $value));
+
+    // Replace comma with dot for decimal separator
+    $value = str_replace(',', '.', $value);
+
+    // Remove thousand separators (dots)
+    $value = str_replace('.', '', substr($value, 0, -3)) . substr($value, -3);
+
+    return (float) $value;
+}
+
 try {
-    // Validate amount
-    if (!isset($_GET['amount']) || !is_numeric($_GET['amount']) || $_GET['amount'] <= 0) {
+    // Format and validate amount
+    $amount = isset($_GET['amount']) ? formatCurrencyValue($_GET['amount']) : 0;
+    if ($amount <= 0) {
         throw new Exception("Valor inválido");
     }
 
@@ -74,7 +88,7 @@ try {
         $_ENV['PIX_KEY'],
         $_ENV['MERCHANT_NAME'],
         $_ENV['MERCHANT_CITY'],
-        $_GET['amount'],
+        $amount,
         $_ENV['DESCRIPTION']
     );
 
